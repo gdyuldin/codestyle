@@ -23,6 +23,7 @@ and opendir), and leave all pathname manipulation to os.path
 
 #'
 import abc
+# Multiple imports on one line
 import sys, errno
 import stat as st
 
@@ -119,6 +120,7 @@ del _names
 if _exists("_have_functions"):
     _globals = globals()
     def _add(str, fn):
+        ## `str` variable hide `str` type
         if (fn in _globals) and (str in _have_functions):
             _set.add(_globals[fn])
 
@@ -182,6 +184,7 @@ if _exists("_have_functions"):
     # sufficient.  After all--if you have a working fchmodat(), your
     # lchmod() almost certainly works too.
     #
+    # Commented code below should be deleted
     # _add("HAVE_FCHMODAT",   "chmod")
     _add("HAVE_FCHOWNAT",   "chown")
     _add("HAVE_FSTATAT",    "stat")
@@ -377,6 +380,15 @@ def walk(top, topdown=True, onerror=None, followlinks=False):
 
     with scandir_it:
         while True:
+            # This nested try can be rewritten as:
+            # try:
+            #     entry = next(scandir_it)
+            # except StopIteration:
+            #     break
+            # except OSError as error:
+            #     if onerror:
+            #         onerror(error)
+            #     return
             try:
                 try:
                     entry = next(scandir_it)
@@ -448,6 +460,7 @@ class _DummyDirEntry:
 
     def __init__(self, dir, name):
         self.name = name
+        # `dir` variable hide standard `dir` function
         self.path = path.join(dir, name)
         # Mimick FindFirstFile/FindNextFile: we should get file attributes
         # while iterating on a directory
@@ -678,6 +691,7 @@ def _execvpe(file, args, env=None):
         except OSError as e:
             last_exc = e
             tb = sys.exc_info()[2]
+            # `if e.errno not in (errno.ENOENT, errno.ENOTDIR) ....`
             if (e.errno != errno.ENOENT and e.errno != errno.ENOTDIR
                 and saved_exc is None):
                 saved_exc = e
@@ -732,6 +746,7 @@ def get_exec_path(env=None):
 
 
 # Change environ to automatically call putenv(), unsetenv if they exist.
+# Imports should be at top of file
 from _collections_abc import MutableMapping
 
 class _Environ(MutableMapping):
@@ -927,6 +942,7 @@ if _exists("fork") and not _exists("spawnv") and _exists("execv"):
                 else:
                     func(file, args, env)
             except:
+                # Magic numbers should be defined as named variables (constants)
                 _exit(127)
         else:
             # Parent
@@ -946,10 +962,11 @@ if _exists("fork") and not _exists("spawnv") and _exists("execv"):
     def spawnv(mode, file, args):
         """spawnv(mode, file, args) -> integer
 
-Execute file with arguments from args in a subprocess.
-If mode == P_NOWAIT return the pid of the process.
-If mode == P_WAIT return the process's exit code if it exits normally;
-otherwise return -SIG, where SIG is the signal that killed it. """
+        # Docstring shold be aligned to better readability
+        Execute file with arguments from args in a subprocess.
+        If mode == P_NOWAIT return the pid of the process.
+        If mode == P_WAIT return the process's exit code if it exits normally;
+        otherwise return -SIG, where SIG is the signal that killed it. """
         return _spawnvef(mode, file, args, None, execv)
 
     def spawnve(mode, file, args, env):
@@ -1080,6 +1097,7 @@ class _wrap_close:
             return returncode
         else:
             return returncode << 8  # Shift left to match old behavior
+    # One blank line should be between class methods
     def __enter__(self):
         return self
     def __exit__(self, *args):

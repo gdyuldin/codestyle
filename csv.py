@@ -51,6 +51,7 @@ class Dialect:
             # We do this for compatibility with py2.3
             raise Error(str(e))
 
+# Class names should be in Upper Case
 class excel(Dialect):
     """Describe the usual properties of Excel-generated CSV files."""
     delimiter = ','
@@ -172,6 +173,7 @@ class Sniffer:
         self.preferred = [',', '\t', ';', ' ', ':']
 
 
+    # Too many blank line betwheen methods (should be 1)
     def sniff(self, sample, delimiters=None):
         """
         Returns a dialect (or None) corresponding to the sample
@@ -254,6 +256,7 @@ class Sniffer:
         if delims:
             delim = max(delims, key=delims.get)
             skipinitialspace = delims[delim] == spaces
+            # There is only one space before inline comment (shoulf be at least 2)
             if delim == '\n': # most likely a file with a single column
                 delim = ''
         else:
@@ -264,11 +267,13 @@ class Sniffer:
         # if we see an extra quote between delimiters, we've got a
         # double quoted format
         dq_regexp = re.compile(
+        # Next line in too long (131 character)
                                r"((%(delim)s)|^)\W*%(quote)s[^%(delim)s\n]*%(quote)s[^%(delim)s\n]*%(quote)s\W*((%(delim)s)|$)" % \
                                {'delim':re.escape(delim), 'quote':quotechar}, re.MULTILINE)
 
 
 
+        # Too many blank lines(3) should be not more than 1
         if dq_regexp.search(data):
             doublequote = True
         else:
@@ -343,6 +348,7 @@ class Sniffer:
             while len(delims) == 0 and consistency >= threshold:
                 for k, v in modeList:
                     if v[0] > 0 and v[1] > 0:
+                        # divide sign should be wrapped with spaces
                         if ((v[1]/total) >= consistency and
                             (delimiters is None or k in delimiters)):
                             delims[k] = v
@@ -371,6 +377,7 @@ class Sniffer:
 
         # nothing else indicates a preference, pick the character that
         # dominates(?)
+        # Space should be after comma
         items = [(v,k) for (k,v) in delims.items()]
         items.sort()
         delim = items[-1][1]
@@ -395,7 +402,9 @@ class Sniffer:
         header = next(rdr) # assume first row is header
 
         columns = len(header)
+        # Snake case should be used for variable name
         columnTypes = {}
+        # Loop body should be at new line
         for i in range(columns): columnTypes[i] = None
 
         checked = 0
@@ -432,6 +441,7 @@ class Sniffer:
         # on whether it's a header
         hasHeader = 0
         for col, colType in columnTypes.items():
+            # It's better to use `isinstance()` instead of type comparsion
             if type(colType) == type(0): # it's a length
                 if len(header[col]) != colType:
                     hasHeader += 1
